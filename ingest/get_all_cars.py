@@ -11,17 +11,17 @@ class AdNotProcessedException(Exception):
          'dataframes. stopping execution')
         super().__init__(exception_msg)
 
+
 def get_all_cars(source_dir: str, *, filename=None: str,
                  dest_dir: str=None,
                  date_download: datetime.datetime=None,
                  save_dir: str=None,
-                 save_mode: 'either "pkl" or "csv"'=None,
+                 save_mode: 'either "pkl" or "csv"'='pkl',
                  check_all_pages: bool=False) -> None:
     '''
     Processes all html files in `source_dir` with ads from coches.net,
-    and concatenates them into a pandas DataFrame, which is either returned or
-    saved in  `saved_dir` with the name `filename`. Resulting DataFrame can be
-    returned (default) or saved by specifying save_mode.
+    and concatenates them into a pandas DataFrame, which is always returned.
+    Resulting DataFrame can be saved by specifying `save_dir` and `filename`.
 
     Original html files can be either preserved (default option, dest_dir None)
     or moved to the `dest_dir` folder. If check_all_cars is True, method checks
@@ -37,11 +37,11 @@ def get_all_cars(source_dir: str, *, filename=None: str,
     - date_download, date when html pages were obtained, to add it to dataframe.
     if None, uses today as date_download
     - save_mode, None, "pkl" or "csv". format with which to save resulting dataframe.
-    if None, do not save dataframe, return it instead
+    if None, do not save dataframe
     - check_all_pages, whether execution should be stopped if one of the pages
     cannot be processed. if False, print a warning to the screen.
     '''
-    # create pattern to fill with all files
+    # get cars from all files in source_dir
     cars = None
     for file in os.listdir(source_dir):
         if file.endswith('.html'):
@@ -76,8 +76,7 @@ def get_all_cars(source_dir: str, *, filename=None: str,
         if save_mode == 'pkl':
             cars.to_pickle(os.path.join(save_dir, f'{filename}.pkl'))
         elif save_mode == 'csv':
-            cars.to_csv(f'dataframes/{filename}.csv', index=False)
-        return
+            cars.to_csv(os.path.join(save_dir, f'{filename}.pkl', index=False)
     return cars
 
 if __name__ == '__main__':
