@@ -1,9 +1,7 @@
 import os.path
 import pandas as pd
-from datetime import datetime, timedelta
 from read_page import from_html_to_df
 import shutil
-import pdb
 
 # an ad-hoc exception to raise if some of the ad pages have not been processed
 class AdNotProcessedException(Exception):
