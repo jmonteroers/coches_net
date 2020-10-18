@@ -3,11 +3,10 @@ import pandas as pd
 from datetime import datetime, timedelta
 
 
-import pdb
-
 def get_list_from_html(html, class_):
     list_html = html.find_all(class_=class_)
     return [el.get_text().strip() for el in list_html]
+
 
 def get_prices_from_html(html):
     '''
@@ -16,6 +15,7 @@ def get_prices_from_html(html):
     prices_html = html.find_all(class_="mt-AdPrice-amount")
     prices = tuple(price_tag.strong.get_text() for price_tag in prices_html)
     return prices
+
 
 def transform_car(title, date, prices, attributes, warranty, office):
     '''
@@ -43,18 +43,21 @@ def transform_car(title, date, prices, attributes, warranty, office):
         print(e)
     return car
 
-# borrowed from stackoverflow, Kyle Barron
+
+# borrowed from stackoverflow, idea by Kyle Barron
 def vec_dt_replace(series, year=None, month=None, day=None):
     return pd.to_datetime(
         {'year': series.dt.year if year is None else year,
          'month': series.dt.month if month is None else month,
          'day': series.dt.day if day is None else day})
 
+
 def clean_numeric(series, measure=' €'):
     series = series.str.replace('.', '')
     series = series.str.replace(measure, '')
     series[~series.isnull() & series.str.contains('N/D')] = None
     return series.astype(float)
+
 
 def clean_cars_df(cars, date_download=None):
     if cars.shape[0] == 0:
@@ -82,6 +85,7 @@ def clean_cars_df(cars, date_download=None):
     # convert office
     cars.office = cars.office == "Gerencia"
     return cars
+
 
 def read_html(content):
     '''
@@ -116,7 +120,9 @@ def from_html_to_df(content, date_download=None):
     cars = clean_cars_df(cars, date_download=date_download)
     return cars
 
+
 if __name__ == '__main__':
+    import pdb
     cars = read_html('land_cruiser_demo.html')
     cars = pd.DataFrame(cars)
     cars = clean_cars_df(cars)
