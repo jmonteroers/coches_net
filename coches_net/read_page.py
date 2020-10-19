@@ -78,9 +78,10 @@ def clean_cars_df(cars, date_download=None):
     cars.kilometrage = clean_numeric(cars.kilometrage, measure=' km')
     # convert year
     cars.year = cars.year.astype(float)
-    # convert warranty
+    # convert warranty. assume that no digits implies no warranty
+    # need to convert to float first to deal with NaNs
     cars.warranty = cars.warranty.str.extract('(\d+)').astype(float)
-    cars.warranty[cars.warranty.isnull()] = 0
+    cars.loc[cars.warranty.isnull(), 'warranty'] = 0
     cars.warranty = cars.warranty.astype(int)
     # convert office
     cars.office = cars.office == "Gerencia"
@@ -93,7 +94,7 @@ def read_html(content):
     a dictionary
     '''
 
-    soup = BeautifulSoup(content)
+    soup = BeautifulSoup(content, features='lxml')
     # get title
     titles = get_list_from_html(soup, class_='mt-CardAd-titleHiglight')
     # get attributes

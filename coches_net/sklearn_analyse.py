@@ -65,7 +65,7 @@ def find_discounts(data_location: str,
                    dep_var: 'either "spot_price" or "financed_price"'
                    ='spot_price', model_type: str='random_forest',
                    indep_vars: list=None,
-                   filter: function = None,
+                   filter: 'function' = None,
                    test_size=.15,
                    return_r2=False,
                    **kwargs):

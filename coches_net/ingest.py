@@ -1,6 +1,6 @@
 import pandas as pd
 import os.path
-from read_page import from_html_to_df
+from .read_page import from_html_to_df
 import shutil
 
 
@@ -12,9 +12,9 @@ class AdNotProcessedException(Exception):
          'dataframes. stopping execution')
         super().__init__(exception_msg)
 
-def get_all_cars(source_dir: str, *, filename=None: str,
+def get_all_cars(source_dir: str, *, filename: str=None,
                  dest_dir: str=None,
-                 date_download: datetime.datetime=None,
+                 date_download: 'datetime.datetime'=None,
                  save_dir: str=None,
                  save_mode: 'either "pkl" or "csv"'='pkl',
                  check_all_pages: bool=False) -> None:
@@ -54,18 +54,21 @@ def get_all_cars(source_dir: str, *, filename=None: str,
             if new_cars is None:
                 if check_all_cars:
                     raise(AdNotProcessedException())
+                else:
+                    print(f'Warning! {file} could not be processed')
                 continue
             # add name of the file as a variable to DataFrame
             new_cars['page'] = file
             # update cars
-            cars = pd.concat([cars, new_cars]) if cars else new_cars
+            cars = (pd.concat([cars, new_cars])
+                    if cars is not None else new_cars)
             # either move or copy file
             if dest_dir is not None:
-                shutil.move(os.path.join(source_dir, file),
-                            os.path.join(dest_dir, file))
-            else:
                 shutil.copy(os.path.join(source_dir, file),
                             os.path.join(dest_dir, file))
+    # check that we have processed any of the pages
+    if cars is None:
+        return
     # drop duplicates without considering page column
     columns_for_duplicates = [column for column in cars.columns
                               if column != 'page']
@@ -76,13 +79,13 @@ def get_all_cars(source_dir: str, *, filename=None: str,
         if save_mode == 'pkl':
             cars.to_pickle(os.path.join(save_dir, f'{filename}.pkl'))
         elif save_mode == 'csv':
-            cars.to_csv(os.path.join(save_dir, f'{filename}.pkl', index=False)
+            cars.to_csv(os.path.join(save_dir, f'{filename}.pkl'), index=False)
     return cars
 
 
 def add_new_pages(source_dir: str,
                   datafile: str, *,
-                  date_download: datetime.datetime=None,
+                  date_download: 'datetime.datetime'=None,
                   dest_dir: str=None,
                   check_all_pages: bool=False,
                   save=False):
